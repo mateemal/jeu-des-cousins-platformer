@@ -121,7 +121,7 @@ body {
 }
 
 .control label { font-size: 13px; }
-.control input, textarea {
+.control input {
   width: 100%;
   border: 1px solid #475569;
   border-radius: 7px;
@@ -130,12 +130,64 @@ body {
 }
 
 .control input { padding: 7px 8px; text-align: right; }
-textarea {
-  min-height: 190px;
+
+#pattern-grids { display: grid; gap: 12px; }
+
+.pattern-card {
   padding: 10px;
-  resize: vertical;
-  font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  border: 1px solid #40516b;
+  border-radius: 10px;
+  background: rgb(15 23 42 / 72%);
 }
+
+.pattern-card header {
+  align-items: center !important;
+  margin: 0 0 8px !important;
+}
+
+.pattern-card header strong { font-size: 13px !important; }
+
+.delete-pattern {
+  padding: 5px 8px;
+  background: #7f1d1d;
+  font-size: 11px;
+}
+
+.delete-pattern:disabled { cursor: not-allowed; opacity: .35; }
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  justify-content: center;
+  gap: 5px;
+}
+
+.pattern-cell {
+  width: 48px;
+  height: 42px;
+  border: 2px solid #64748b;
+  border-radius: 8px;
+  color: white;
+  background: #172033;
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.pattern-cell[data-value="0"] { color: #94a3b8; background: #172033; }
+.pattern-cell[data-value="1"] { color: #071426; background: #4d91ee; }
+.pattern-cell[data-value="2"] { color: #241405; background: #ff9c0a; }
+.pattern-cell[data-value="3"] { color: #172100; background: #cfff00; }
+.pattern-cell[data-value="4"] { color: #280713; background: #ff3f72; }
+
+.pattern-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#reset-patterns { background: #475569; }
 
 button {
   border: 0;
