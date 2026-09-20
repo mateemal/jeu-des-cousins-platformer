@@ -34,3 +34,5 @@ Les patterns sont des grilles JSON 3 × 3. Les lignes vont du haut vers le bas :
 - `4` : rose
 
 Ils peuvent être modifiés directement dans des grilles visuelles 3 × 3 dans le panneau de réglages. Chaque modification est appliquée et enregistrée immédiatement.
+
+La version courante contient 12 patterns intégrés au code source.
