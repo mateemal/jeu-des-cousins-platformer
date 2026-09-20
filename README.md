@@ -4,9 +4,9 @@ Prototype web 3 joueurs en défilement automatique.
 
 ## Commandes
 
-- Héros 1 : `Q`
+- Héros 1 : `A`
 - Héros 2 : `G`
-- Héros 3 : `M`
+- Héros 3 : `L`
 - Afficher ou masquer le panneau de réglages : `D`
 - Mettre en pause ou reprendre : `P`
 - Remettre le record à zéro : `R`
