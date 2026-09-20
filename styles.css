@@ -210,14 +210,6 @@ button:hover { filter: brightness(1.08); }
 }
 
 #reset-settings { background: #475569; }
-#open-debug {
-  position: fixed;
-  z-index: 6;
-  right: 14px;
-  top: 14px;
-  box-shadow: 0 5px 16px rgb(0 0 0 / 30%);
-}
-
 @media (max-width: 700px) {
   #hud > div { min-width: 92px; padding: 5px 10px; border-width: 2px; }
   #hud span { font-size: 9px; }
