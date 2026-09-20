@@ -8,8 +8,9 @@ Prototype web 3 joueurs en défilement automatique.
 - Héros 2 : `G`
 - Héros 3 : `L`
 - Afficher ou masquer le panneau de réglages : `D`
+- Mettre en pause ou reprendre : `P`
 
-Maintenir la touche prolonge le saut. Relâcher rend immédiatement à la gravité sa valeur normale.
+Maintenir la touche prolonge le saut. Relâcher rend immédiatement à la gravité sa valeur normale. Une propulsion horizontale réglable est appliquée au saut et le héros retrouve sa position X de référence à l’atterrissage.
 
 ## Lancer en local
 
