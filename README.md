@@ -9,6 +9,7 @@ Prototype web 3 joueurs en défilement automatique.
 - Héros 3 : `L`
 - Afficher ou masquer le panneau de réglages : `D`
 - Mettre en pause ou reprendre : `P`
+- Remettre le record à zéro : `R`
 
 Maintenir la touche prolonge le saut. Relâcher rend immédiatement à la gravité sa valeur normale. Un héros repoussé vers l’arrière récupère progressivement sa position X de référence uniquement lorsqu’il saute.
 
