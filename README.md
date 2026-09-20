@@ -10,7 +10,7 @@ Prototype web 3 joueurs en défilement automatique.
 - Afficher ou masquer le panneau de réglages : `D`
 - Mettre en pause ou reprendre : `P`
 
-Maintenir la touche prolonge le saut. Relâcher rend immédiatement à la gravité sa valeur normale. Une propulsion horizontale réglable est appliquée au saut, puis le héros revient progressivement vers sa position X de référence après l’atterrissage. La vitesse de ce retour est réglable dans le debug.
+Maintenir la touche prolonge le saut. Relâcher rend immédiatement à la gravité sa valeur normale. Une propulsion horizontale réglable est appliquée au saut, puis le héros revient vers sa position X de référence avec une interpolation douce ease-in-out après l’atterrissage. La vitesse moyenne de ce retour est réglable dans le debug.
 
 ## Lancer en local
 
