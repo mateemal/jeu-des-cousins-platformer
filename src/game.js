@@ -161,7 +161,7 @@ function updateHeroTargets(snapToTarget = false) {
 }
 
 function makeHeroes() {
-  const controls = ["KeyA", "KeyG", "KeyM"];
+  const controls = ["KeyQ", "KeyG", "KeyM"];
   heroes = assets.heroImages.map((image, index) => ({
     image,
     key: controls[index],
