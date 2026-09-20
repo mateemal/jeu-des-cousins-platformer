@@ -11,6 +11,7 @@ const ctx = canvas.getContext("2d");
 const distanceEl = document.querySelector("#distance");
 const recordEl = document.querySelector("#record");
 const gameOverEl = document.querySelector("#game-over");
+const pauseOverlay = document.querySelector("#pause-overlay");
 const panel = document.querySelector("#debug-panel");
 
 const defaults = {
@@ -21,6 +22,7 @@ const defaults = {
   gapMax: 335,
   heroGap: 0,
   jumpImpulse: 1300,
+  jumpXImpulse: 300,
   gravity: 3000,
   maxHoldTime: 0.22,
   holdGravityFactor: 0.35,
@@ -47,6 +49,7 @@ const controlSchema = [
   ["gapMax", "Trou maximum (px)", 0, 1000, 5],
   ["heroGap", "Écart entre héros (px)", 0, 250, 2],
   ["jumpImpulse", "Impulsion du saut", 100, 1800, 10],
+  ["jumpXImpulse", "Propulsion X du saut", 0, 1200, 10],
   ["gravity", "Gravité", 200, 5000, 25],
   ["maxHoldTime", "Appui maximum (s)", 0.02, 1, 0.01],
   ["holdGravityFactor", "Gravité pendant appui", 0.05, 1, 0.05],
@@ -70,6 +73,7 @@ let travelledPixels = 0;
 let backgroundOffset = 0;
 let lastTime = 0;
 let restarting = false;
+let paused = false;
 let record = Number(localStorage.getItem(RECORD_KEY) || 0);
 
 function loadSettings() {
@@ -156,6 +160,7 @@ function makeHeroes() {
     targetX: 0,
     footY: GROUND_Y,
     vy: 0,
+    vx: 0,
     grounded: true,
     alive: true,
     holdTime: 0,
@@ -207,7 +212,9 @@ function resetGame() {
   travelledPixels = 0;
   backgroundOffset = 0;
   restarting = false;
+  paused = false;
   gameOverEl.classList.add("hidden");
+  pauseOverlay.classList.add("hidden");
   createPlatform(-80, assets.grounds[2], false);
   ensureWorldAhead();
   makeHeroes();
@@ -218,6 +225,7 @@ function jump(hero) {
   if (!hero.alive || !hero.grounded) return;
   hero.grounded = false;
   hero.vy = -config.jumpImpulse;
+  hero.vx = config.jumpXImpulse;
   hero.holdTime = 0;
 }
 
@@ -242,6 +250,7 @@ function resolveHeroPhysics(hero, dt) {
 
   hero.vy += gravity * dt;
   hero.footY += hero.vy * dt;
+  hero.x += hero.vx * dt;
   hero.grounded = false;
 
   const solids = [...platforms, ...blocks];
@@ -262,7 +271,9 @@ function resolveHeroPhysics(hero, dt) {
   if (landing) {
     hero.footY = landing.y + config.colliderOffsetY;
     hero.vy = 0;
+    hero.vx = 0;
     hero.grounded = true;
+    hero.x = hero.targetX;
     collider = heroCollider(hero);
   }
 
@@ -304,7 +315,7 @@ function resolveHeroPhysics(hero, dt) {
 }
 
 function update(dt) {
-  if (restarting) return;
+  if (restarting || paused) return;
   speed += config.acceleration * dt;
   moveWorld(dt);
   heroes.forEach((hero) => resolveHeroPhysics(hero, dt));
@@ -482,11 +493,24 @@ function toggleDebug(force) {
   panel.classList.toggle("hidden", !shouldOpen);
 }
 
+function togglePause() {
+  if (restarting) return;
+  paused = !paused;
+  keys.clear();
+  pauseOverlay.classList.toggle("hidden", !paused);
+}
+
 window.addEventListener("keydown", (event) => {
+  if (event.code === "KeyP" && !event.repeat) {
+    event.preventDefault();
+    togglePause();
+    return;
+  }
   if (event.code === "KeyD" && !event.repeat) {
     toggleDebug();
     return;
   }
+  if (paused) return;
   const hero = heroes.find((candidate) => candidate.key === event.code);
   if (!hero) return;
   event.preventDefault();
