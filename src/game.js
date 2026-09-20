@@ -27,6 +27,7 @@ const defaults = {
   maxHoldTime: 0.22,
   holdGravityFactor: 0.35,
   airRecoverySpeed: 190,
+  landingReturnSpeed: 600,
   blockFrequency: 55,
   colliderWidth: 58,
   colliderHeight: 142,
@@ -54,6 +55,7 @@ const controlSchema = [
   ["maxHoldTime", "Appui maximum (s)", 0.02, 1, 0.01],
   ["holdGravityFactor", "Gravité pendant appui", 0.05, 1, 0.05],
   ["airRecoverySpeed", "Retour horizontal en saut", 0, 600, 10],
+  ["landingReturnSpeed", "Retour X après saut (px/s)", 50, 2000, 25],
   ["blockFrequency", "Fréquence des blocs (%)", 0, 100, 1],
   ["colliderWidth", "Collision héros : largeur", 10, 180, 2],
   ["colliderHeight", "Collision héros : hauteur", 10, 220, 2],
@@ -164,6 +166,7 @@ function makeHeroes() {
     grounded: true,
     alive: true,
     holdTime: 0,
+    returningX: false,
   }));
   updateHeroTargets(true);
 }
@@ -227,6 +230,7 @@ function jump(hero) {
   hero.vy = -config.jumpImpulse;
   hero.vx = config.jumpXImpulse;
   hero.holdTime = 0;
+  hero.returningX = false;
 }
 
 function moveWorld(dt) {
@@ -243,6 +247,7 @@ function moveWorld(dt) {
 function resolveHeroPhysics(hero, dt) {
   if (!hero.alive) return;
 
+  const wasGrounded = hero.grounded;
   const previousCollider = heroCollider(hero);
   const holding = keys.has(hero.key) && hero.holdTime < config.maxHoldTime && hero.vy < 0;
   const gravity = config.gravity * (holding ? config.holdGravityFactor : 1);
@@ -273,7 +278,19 @@ function resolveHeroPhysics(hero, dt) {
     hero.vy = 0;
     hero.vx = 0;
     hero.grounded = true;
-    hero.x = hero.targetX;
+    if (!wasGrounded) hero.returningX = true;
+    collider = heroCollider(hero);
+  }
+
+  if (hero.grounded && hero.returningX) {
+    const difference = hero.targetX - hero.x;
+    const step = config.landingReturnSpeed * dt;
+    if (Math.abs(difference) <= step) {
+      hero.x = hero.targetX;
+      hero.returningX = false;
+    } else {
+      hero.x += Math.sign(difference) * step;
+    }
     collider = heroCollider(hero);
   }
 
