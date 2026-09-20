@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jeu des cousins — Platformer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="game-shell">
+      <canvas id="game" width="1920" height="1080" aria-label="Jeu des cousins"></canvas>
+      <section id="hud" aria-live="polite">
+        <div><span>Distance</span><strong id="distance">0 m</strong></div>
+        <div><span>Record</span><strong id="record">0 m</strong></div>
+      </section>
+      <div id="game-over" class="hidden">
+        <strong>Partie terminée</strong>
+        <span>Nouvelle partie…</span>
+      </div>
+    </main>
+
+    <aside id="debug-panel">
+      <header>
+        <div>
+          <strong>Réglages</strong>
+          <small>Masquer/afficher : D</small>
+        </div>
+        <button id="close-debug" type="button" aria-label="Masquer les réglages">×</button>
+      </header>
+      <div id="debug-controls"></div>
+
+      <section class="patterns">
+        <h2>Patterns de blocs 3 × 3</h2>
+        <p>0 vide · 1 bleu · 2 orange · 3 vert · 4 rose</p>
+        <textarea id="patterns-json" spellcheck="false"></textarea>
+        <button id="apply-patterns" type="button">Appliquer les patterns</button>
+        <output id="patterns-status"></output>
+      </section>
+
+      <footer>
+        <button id="restart" type="button">Recommencer</button>
+        <button id="reset-settings" type="button">Valeurs par défaut</button>
+      </footer>
+    </aside>
+
+    <button id="open-debug" class="hidden" type="button">Réglages</button>
+    <script type="module" src="src/game.js"></script>
+  </body>
+</html>
