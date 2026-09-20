@@ -3,7 +3,7 @@ const HEIGHT = 1080;
 const GROUND_Y = 744;
 const BLOCK_SIZE = 126;
 const STORAGE_KEY = "cousins-platformer-settings-v1";
-const RECORD_KEY = "cousins-platformer-record-v1";
+const RECORD_KEY = "cousins-platformer-record-v2";
 const PATTERNS_KEY = "cousins-platformer-patterns-v1";
 
 const canvas = document.querySelector("#game");
@@ -12,7 +12,6 @@ const distanceEl = document.querySelector("#distance");
 const recordEl = document.querySelector("#record");
 const gameOverEl = document.querySelector("#game-over");
 const panel = document.querySelector("#debug-panel");
-const openDebugButton = document.querySelector("#open-debug");
 
 const defaults = {
   initialSpeed: 270,
@@ -481,7 +480,6 @@ function buildPatternGrids() {
 function toggleDebug(force) {
   const shouldOpen = force ?? panel.classList.contains("hidden");
   panel.classList.toggle("hidden", !shouldOpen);
-  openDebugButton.classList.toggle("hidden", shouldOpen);
 }
 
 window.addEventListener("keydown", (event) => {
@@ -500,7 +498,6 @@ window.addEventListener("keyup", (event) => keys.delete(event.code));
 window.addEventListener("blur", () => keys.clear());
 
 document.querySelector("#close-debug").addEventListener("click", () => toggleDebug(false));
-openDebugButton.addEventListener("click", () => toggleDebug(true));
 document.querySelector("#restart").addEventListener("click", resetGame);
 document.querySelector("#reset-settings").addEventListener("click", () => {
   config = { ...defaults };
