@@ -21,10 +21,10 @@ const defaults = {
   gapMin: 100,
   gapMax: 335,
   heroGap: 0,
-  jumpImpulse: 1300,
+  jumpImpulse: 1100,
   gravity: 3000,
-  maxHoldTime: 0.22,
-  holdGravityFactor: 0.35,
+  maxHoldTime: 0.38,
+  holdGravityFactor: 0.15,
   airRecoverySpeed: 190,
   blockFrequency: 55,
   colliderWidth: 58,
@@ -496,10 +496,21 @@ function togglePause() {
   pauseOverlay.classList.toggle("hidden", !paused);
 }
 
+function resetRecord() {
+  record = 0;
+  localStorage.setItem(RECORD_KEY, "0");
+  updateHud();
+}
+
 window.addEventListener("keydown", (event) => {
   if (event.code === "KeyP" && !event.repeat) {
     event.preventDefault();
     togglePause();
+    return;
+  }
+  if (event.code === "KeyR" && !event.repeat) {
+    event.preventDefault();
+    resetRecord();
     return;
   }
   if (event.code === "KeyD" && !event.repeat) {
