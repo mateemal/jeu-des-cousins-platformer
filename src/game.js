@@ -22,12 +22,10 @@ const defaults = {
   gapMax: 335,
   heroGap: 0,
   jumpImpulse: 1300,
-  jumpXImpulse: 300,
   gravity: 3000,
   maxHoldTime: 0.22,
   holdGravityFactor: 0.35,
   airRecoverySpeed: 190,
-  landingReturnSpeed: 600,
   blockFrequency: 55,
   colliderWidth: 58,
   colliderHeight: 142,
@@ -50,12 +48,10 @@ const controlSchema = [
   ["gapMax", "Trou maximum (px)", 0, 1000, 5],
   ["heroGap", "Écart entre héros (px)", 0, 250, 2],
   ["jumpImpulse", "Impulsion du saut", 100, 1800, 10],
-  ["jumpXImpulse", "Propulsion X du saut", 0, 1200, 10],
   ["gravity", "Gravité", 200, 5000, 25],
   ["maxHoldTime", "Appui maximum (s)", 0.02, 1, 0.01],
   ["holdGravityFactor", "Gravité pendant appui", 0.05, 1, 0.05],
   ["airRecoverySpeed", "Retour horizontal en saut", 0, 600, 10],
-  ["landingReturnSpeed", "Retour X après saut (px/s)", 50, 2000, 25],
   ["blockFrequency", "Fréquence des blocs (%)", 0, 100, 1],
   ["colliderWidth", "Collision héros : largeur", 10, 180, 2],
   ["colliderHeight", "Collision héros : hauteur", 10, 220, 2],
@@ -80,7 +76,10 @@ let record = Number(localStorage.getItem(RECORD_KEY) || 0);
 
 function loadSettings() {
   try {
-    return { ...defaults, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") };
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    return Object.fromEntries(
+      Object.entries(defaults).map(([key, value]) => [key, stored[key] ?? value])
+    );
   } catch {
     return { ...defaults };
   }
@@ -162,14 +161,9 @@ function makeHeroes() {
     targetX: 0,
     footY: GROUND_Y,
     vy: 0,
-    vx: 0,
     grounded: true,
     alive: true,
     holdTime: 0,
-    returningX: false,
-    returnStartX: 0,
-    returnElapsed: 0,
-    returnDuration: 0,
   }));
   updateHeroTargets(true);
 }
@@ -231,9 +225,7 @@ function jump(hero) {
   if (!hero.alive || !hero.grounded) return;
   hero.grounded = false;
   hero.vy = -config.jumpImpulse;
-  hero.vx = config.jumpXImpulse;
   hero.holdTime = 0;
-  hero.returningX = false;
 }
 
 function moveWorld(dt) {
@@ -250,7 +242,6 @@ function moveWorld(dt) {
 function resolveHeroPhysics(hero, dt) {
   if (!hero.alive) return;
 
-  const wasGrounded = hero.grounded;
   const previousCollider = heroCollider(hero);
   const holding = keys.has(hero.key) && hero.holdTime < config.maxHoldTime && hero.vy < 0;
   const gravity = config.gravity * (holding ? config.holdGravityFactor : 1);
@@ -258,7 +249,6 @@ function resolveHeroPhysics(hero, dt) {
 
   hero.vy += gravity * dt;
   hero.footY += hero.vy * dt;
-  hero.x += hero.vx * dt;
   hero.grounded = false;
 
   const solids = [...platforms, ...blocks];
@@ -279,27 +269,7 @@ function resolveHeroPhysics(hero, dt) {
   if (landing) {
     hero.footY = landing.y + config.colliderOffsetY;
     hero.vy = 0;
-    hero.vx = 0;
     hero.grounded = true;
-    if (!wasGrounded) {
-      const returnDistance = Math.abs(hero.targetX - hero.x);
-      hero.returningX = returnDistance > 0.5;
-      hero.returnStartX = hero.x;
-      hero.returnElapsed = 0;
-      hero.returnDuration = returnDistance / config.landingReturnSpeed;
-    }
-    collider = heroCollider(hero);
-  }
-
-  if (hero.grounded && hero.returningX) {
-    hero.returnElapsed += dt;
-    const progress = Math.min(hero.returnElapsed / Math.max(hero.returnDuration, 0.001), 1);
-    const easedProgress = -(Math.cos(Math.PI * progress) - 1) / 2;
-    hero.x = hero.returnStartX + (hero.targetX - hero.returnStartX) * easedProgress;
-    if (progress >= 1) {
-      hero.x = hero.targetX;
-      hero.returningX = false;
-    }
     collider = heroCollider(hero);
   }
 
