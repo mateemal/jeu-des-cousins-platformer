@@ -4,6 +4,7 @@ const GROUND_Y = 744;
 const BLOCK_SIZE = 126;
 const STORAGE_KEY = "cousins-platformer-settings-v1";
 const RECORD_KEY = "cousins-platformer-record-v1";
+const PATTERNS_KEY = "cousins-platformer-patterns-v1";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
@@ -59,7 +60,7 @@ const controlSchema = [
 ];
 
 let config = loadSettings();
-let patterns = structuredClone(defaultPatterns);
+let patterns = loadPatterns();
 let assets;
 let platforms = [];
 let blocks = [];
@@ -77,6 +78,15 @@ function loadSettings() {
     return { ...defaults, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") };
   } catch {
     return { ...defaults };
+  }
+}
+
+function loadPatterns() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(PATTERNS_KEY) || "null");
+    return validatePatterns(stored) ? stored : structuredClone(defaultPatterns);
+  } catch {
+    return structuredClone(defaultPatterns);
   }
 }
 
@@ -396,7 +406,7 @@ function buildDebugPanel() {
     container.append(wrapper);
   });
 
-  document.querySelector("#patterns-json").value = JSON.stringify(patterns, null, 2);
+  buildPatternGrids();
 }
 
 function validatePatterns(value) {
@@ -406,6 +416,66 @@ function validatePatterns(value) {
       Array.isArray(row) && row.length === 3 && row.every((cell) => Number.isInteger(cell) && cell >= 0 && cell <= 4)
     )
   );
+}
+
+function savePatterns(message = "Modifications appliquées immédiatement.") {
+  localStorage.setItem(PATTERNS_KEY, JSON.stringify(patterns));
+  const status = document.querySelector("#patterns-status");
+  status.textContent = message;
+  window.clearTimeout(savePatterns.statusTimer);
+  savePatterns.statusTimer = window.setTimeout(() => { status.textContent = ""; }, 1600);
+}
+
+function buildPatternGrids() {
+  const container = document.querySelector("#pattern-grids");
+  container.replaceChildren();
+
+  patterns.forEach((pattern, patternIndex) => {
+    const card = document.createElement("article");
+    card.className = "pattern-card";
+
+    const header = document.createElement("header");
+    const title = document.createElement("strong");
+    title.textContent = `Pattern ${patternIndex + 1}`;
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "delete-pattern";
+    remove.textContent = "Supprimer";
+    remove.disabled = patterns.length === 1;
+    remove.addEventListener("click", () => {
+      patterns.splice(patternIndex, 1);
+      savePatterns("Pattern supprimé.");
+      buildPatternGrids();
+    });
+    header.append(title, remove);
+
+    const grid = document.createElement("div");
+    grid.className = "pattern-grid";
+    pattern.forEach((row, rowIndex) => {
+      row.forEach((value, columnIndex) => {
+        const input = document.createElement("input");
+        input.type = "number";
+        input.className = "pattern-cell";
+        input.min = 0;
+        input.max = 4;
+        input.step = 1;
+        input.value = value;
+        input.dataset.value = value;
+        input.setAttribute("aria-label", `Pattern ${patternIndex + 1}, ligne ${rowIndex + 1}, colonne ${columnIndex + 1}`);
+        input.addEventListener("input", () => {
+          const nextValue = Math.max(0, Math.min(4, Math.round(Number(input.value) || 0)));
+          input.value = nextValue;
+          input.dataset.value = nextValue;
+          patterns[patternIndex][rowIndex][columnIndex] = nextValue;
+          savePatterns();
+        });
+        grid.append(input);
+      });
+    });
+
+    card.append(header, grid);
+    container.append(card);
+  });
 }
 
 function toggleDebug(force) {
@@ -439,18 +509,16 @@ document.querySelector("#reset-settings").addEventListener("click", () => {
   resetGame();
 });
 
-document.querySelector("#apply-patterns").addEventListener("click", () => {
-  const status = document.querySelector("#patterns-status");
-  try {
-    const candidate = JSON.parse(document.querySelector("#patterns-json").value);
-    if (!validatePatterns(candidate)) throw new Error("Chaque pattern doit contenir 3 lignes de 3 valeurs entre 0 et 4.");
-    patterns = candidate;
-    status.textContent = `${patterns.length} pattern(s) appliqué(s).`;
-  } catch (error) {
-    status.textContent = error.message;
-    status.style.color = "#fda4af";
-    window.setTimeout(() => { status.style.color = ""; }, 1800);
-  }
+document.querySelector("#add-pattern").addEventListener("click", () => {
+  patterns.push([[0, 0, 0], [0, 0, 0], [0, 0, 0]]);
+  savePatterns("Nouveau pattern ajouté.");
+  buildPatternGrids();
+});
+
+document.querySelector("#reset-patterns").addEventListener("click", () => {
+  patterns = structuredClone(defaultPatterns);
+  savePatterns("Patterns par défaut restaurés.");
+  buildPatternGrids();
 });
 
 try {
