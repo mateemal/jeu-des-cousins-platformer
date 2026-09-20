@@ -167,6 +167,9 @@ function makeHeroes() {
     alive: true,
     holdTime: 0,
     returningX: false,
+    returnStartX: 0,
+    returnElapsed: 0,
+    returnDuration: 0,
   }));
   updateHeroTargets(true);
 }
@@ -278,18 +281,24 @@ function resolveHeroPhysics(hero, dt) {
     hero.vy = 0;
     hero.vx = 0;
     hero.grounded = true;
-    if (!wasGrounded) hero.returningX = true;
+    if (!wasGrounded) {
+      const returnDistance = Math.abs(hero.targetX - hero.x);
+      hero.returningX = returnDistance > 0.5;
+      hero.returnStartX = hero.x;
+      hero.returnElapsed = 0;
+      hero.returnDuration = returnDistance / config.landingReturnSpeed;
+    }
     collider = heroCollider(hero);
   }
 
   if (hero.grounded && hero.returningX) {
-    const difference = hero.targetX - hero.x;
-    const step = config.landingReturnSpeed * dt;
-    if (Math.abs(difference) <= step) {
+    hero.returnElapsed += dt;
+    const progress = Math.min(hero.returnElapsed / Math.max(hero.returnDuration, 0.001), 1);
+    const easedProgress = -(Math.cos(Math.PI * progress) - 1) / 2;
+    hero.x = hero.returnStartX + (hero.targetX - hero.returnStartX) * easedProgress;
+    if (progress >= 1) {
       hero.x = hero.targetX;
       hero.returningX = false;
-    } else {
-      hero.x += Math.sign(difference) * step;
     }
     collider = heroCollider(hero);
   }
