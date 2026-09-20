@@ -4,7 +4,7 @@ Prototype web 3 joueurs en défilement automatique.
 
 ## Commandes
 
-- Héros 1 : `A`
+- Héros 1 : `Q`
 - Héros 2 : `G`
 - Héros 3 : `M`
 - Afficher ou masquer le panneau de réglages : `D`
